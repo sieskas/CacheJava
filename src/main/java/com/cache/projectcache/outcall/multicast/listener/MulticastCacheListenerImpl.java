@@ -3,9 +3,7 @@ package com.cache.projectcache.outcall.multicast.listener;
 import com.cache.projectcache.service.CacheService;
 import com.cache.projectcache.domain.model.Cache;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
+import java.io.*;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
@@ -40,11 +38,28 @@ public class MulticastCacheListenerImpl extends Thread {
                 ObjectInputStream ois = new ObjectInputStream(in);
                 Object obj = ois.readObject();
                 System.out.println("Received object: " + obj);
-                cacheService.updateCache((Cache) obj);
-                socket.send(packet);
+                if (obj instanceof Cache) {
+                    cacheService.updateCache((Cache) obj);
+                    //sendResponse();
+                }
             }
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
+    }
+
+    private void sendResponse() throws IOException {
+        buf = serializeObject("OK");
+        DatagramPacket packet
+                = new DatagramPacket(buf, buf.length, group, 4446);
+        socket.send(packet);
+    }
+
+    private byte[] serializeObject(Object obj) throws IOException {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
+        objectOutputStream.writeObject(obj);
+        objectOutputStream.flush();
+        return byteArrayOutputStream.toByteArray();
     }
 }

@@ -31,17 +31,19 @@ public class MulticastPublisherImpl implements MulticastPublisher {
         this.socket = new DatagramSocket();
         InetAddress group = InetAddress.getByName(multicastGroup);
 
-        try {buf = serializeObject(obj);
+        //try {buf = serializeObject(obj);
+        buf = serializeObject(obj);
         DatagramPacket packet = new DatagramPacket(buf, buf.length, group, 4446);
         socket.send(packet);
 
-        int receivedServersCount = receivePackets();
-        if (expectedServerCount != receivedServersCount) {
-            throw new RuntimeException("Expected " + expectedServerCount + " servers, but received " + receivedServersCount + " servers");
-        }
-        } finally {
-            socket.close();
-        }
+//        int receivedServersCount = receivePackets();
+//        if (expectedServerCount != receivedServersCount) {
+//            throw new RuntimeException("Expected " + expectedServerCount + " servers, but received " + receivedServersCount + " servers");
+//        }
+//        } finally {
+//            socket.close();
+//        }
+        socket.close();
     }
 
     private byte[] serializeObject(Object obj) throws IOException {

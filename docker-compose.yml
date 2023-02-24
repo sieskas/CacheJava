@@ -1,16 +1,25 @@
-version: '2'
-services:
-  server1:
-    container_name: server1
-    build:
-      dockerfile: Dockerfile
-    image: tomcat
-    ports:
-      - 8080:8080
-  server2:
-    container_name: server2
-    build:
-      dockerfile: Dockerfile
-    image: tomcat
-    ports:
-      - 8070:8070
+#version: '3'
+#services:
+#  server1:
+#    container_name: server1
+#    build:
+#      context: docker-message-server
+#      dockerfile: Dockerfile
+#    image: message-server:latest
+#    ports:
+#      - 224.0.0.1:8080:8080
+#    networks:
+#      - host
+#  server2:
+#    container_name: server2
+#    build:
+#      context: docker-message-server
+#      dockerfile: Dockerfile
+#    image: message-server:latest
+#    ports:
+#      - 224.0.0.1:8080:8080
+#    networks:
+#      - host
+#networks:
+#  host:
+#    driver: host
