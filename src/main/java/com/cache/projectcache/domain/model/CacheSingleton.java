@@ -1,4 +1,7 @@
-package com.cache.projectcache.cache;
+package com.cache.projectcache.domain.model;
+
+import javafx.util.Pair;
+import org.ehcache.jsr107.EhcacheCachingProvider;
 
 import javax.cache.Cache;
 import javax.cache.CacheManager;
@@ -6,7 +9,6 @@ import javax.cache.Caching;
 import javax.cache.configuration.Configuration;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.spi.CachingProvider;
-import org.ehcache.jsr107.EhcacheCachingProvider;
 
 public class CacheSingleton {
 
@@ -18,8 +20,8 @@ public class CacheSingleton {
         if (cacheManager == null) {
             CachingProvider cachingProvider = Caching.getCachingProvider(EhcacheCachingProvider.class.getName());
             cacheManager = cachingProvider.getCacheManager();
-            Configuration<Object, Object> config = new MutableConfiguration<>()
-                    .setTypes(Object.class, Object.class);
+            MutableConfiguration<String, String> config = new MutableConfiguration<>();
+            config.setTypes(String.class, String.class);
             cacheManager.createCache(CACHE_NAME, config);
         }
         return cacheManager.getCache(CACHE_NAME);

@@ -1,11 +1,12 @@
-package com.cache.projectcache.api.v1.Model;
+package com.cache.projectcache.api.resources;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 @Data
-@RequiredArgsConstructor
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class CacheRequestResource {
 
     @JsonProperty("key")

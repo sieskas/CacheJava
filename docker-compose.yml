@@ -1,0 +1,16 @@
+version: '2'
+services:
+  server1:
+    container_name: server1
+    build:
+      dockerfile: Dockerfile
+    image: tomcat
+    ports:
+      - 8080:8080
+  server2:
+    container_name: server2
+    build:
+      dockerfile: Dockerfile
+    image: tomcat
+    ports:
+      - 8070:8070

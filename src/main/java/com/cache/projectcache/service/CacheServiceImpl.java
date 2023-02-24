@@ -1,76 +1,63 @@
 package com.cache.projectcache.service;
 
-import com.cache.projectcache.cache.CacheSingleton;
-import com.cache.projectcache.model.CacheMessage;
+import com.cache.projectcache.domain.exception.NotFoundCacheException;
+import com.cache.projectcache.domain.model.CacheSingleton;
+import com.cache.projectcache.outcall.multicast.MulticastPublisher;
 import org.springframework.stereotype.Service;
 
 import javax.cache.Cache;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.net.DatagramPacket;
-import java.net.InetAddress;
-import java.net.MulticastSocket;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class CacheServiceImpl implements ICacheService {
+public class CacheServiceImpl implements CacheService {
+    private final Cache<String, String> cache;
+    private final MulticastPublisher multicastPublisher;
 
-    private final Cache<String, Object> cache;
-    private final InetAddress multicastAddress;
-    private final MulticastSocket multicastSocket;
-
-
-    public CacheServiceImpl() throws Exception {
+    public CacheServiceImpl(MulticastPublisher multicastPublisher) {
+        this.multicastPublisher = multicastPublisher;
         cache = CacheSingleton.getCache();
-        multicastAddress = InetAddress.getByName("224.0.0.1");
-        multicastSocket = new MulticastSocket();
     }
 
     @Override
-    public String getCache(String key) {
-        return (String) cache.get(key);
+    public void updateCache(com.cache.projectcache.domain.model.Cache objCache) throws IOException {
+        if (objCache == null || objCache.getKey() == null) {
+            return;
+        }
+
+        if (!cache.containsKey(objCache.getKey())
+                || !cache.get(objCache.getKey()).equals(objCache.getValue())) {
+            cache.put(objCache.getKey(), objCache.getValue());
+            multicastPublisher.sendPacket(objCache);
+        }
     }
 
     @Override
-    public List<String> getAllCache() {
-        List<String> list = new ArrayList<>();
-        for(Cache.Entry<String, Object> entry : cache) {
-            list.add((String) entry.getValue());
+    public com.cache.projectcache.domain.model.Cache getCache(String key) throws NotFoundCacheException {
+        if (key == null) {
+            return null;
+        }
+        String value = cache.get(key);
+        if (value == null) {
+            throw new NotFoundCacheException("");
+        }
+
+        return com.cache.projectcache.domain.model.Cache.builder()
+                .key(key)
+                .value(value)
+                .build();
+    }
+
+    @Override
+    public List<com.cache.projectcache.domain.model.Cache> getAllCache() {
+        List<com.cache.projectcache.domain.model.Cache> list = new ArrayList<>();
+        for(Cache.Entry<String, String> entry : cache) {
+            list.add(com.cache.projectcache.domain.model.Cache.builder()
+                    .key(entry.getKey())
+                    .value(entry.getValue())
+                    .build());
         }
         return list;
-    }
-
-    @Override
-    public void deleteCache(String key) {
-        //TODO: Implement delete cache
-    }
-
-    @Override
-    public void updateCacheWithPushMultiCast(String key, String value) {
-        updateCache(key, value);
-        try {
-            CacheMessage cacheMessage = new CacheMessage(key, value);
-            byte[] messageData = serialize(cacheMessage);
-            DatagramPacket packet = new DatagramPacket(messageData, messageData.length, multicastAddress, 4446);
-            System.out.println("CacheServiceImpl.updateCacheWithPushMultiCast: " + cacheMessage);
-            multicastSocket.send(packet);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void updateCache(String key, String value) {
-        System.out.println("CacheServiceImpl.updateCache: " + key + " " + value);
-        cache.put(key, value);
-    }
-
-    private byte[] serialize(Object obj) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(baos);
-        oos.writeObject(obj);
-        return baos.toByteArray();
     }
 }
