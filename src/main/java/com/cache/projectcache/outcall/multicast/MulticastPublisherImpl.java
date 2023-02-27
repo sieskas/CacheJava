@@ -21,9 +21,6 @@ public class MulticastPublisherImpl implements MulticastPublisher {
     @Value("${multicast.port}")
     private int multicastPort;
 
-    @Value("${multicast.expected-servers}")
-    private int expectedServerCount;
-
     private DatagramSocket socket;
     private byte[] buf;
 
@@ -31,18 +28,10 @@ public class MulticastPublisherImpl implements MulticastPublisher {
         this.socket = new DatagramSocket();
         InetAddress group = InetAddress.getByName(multicastGroup);
 
-        //try {buf = serializeObject(obj);
         buf = serializeObject(obj);
-        DatagramPacket packet = new DatagramPacket(buf, buf.length, group, 4446);
+        DatagramPacket packet = new DatagramPacket(buf, buf.length, group, multicastPort);
         socket.send(packet);
 
-//        int receivedServersCount = receivePackets();
-//        if (expectedServerCount != receivedServersCount) {
-//            throw new RuntimeException("Expected " + expectedServerCount + " servers, but received " + receivedServersCount + " servers");
-//        }
-//        } finally {
-//            socket.close();
-//        }
         socket.close();
     }
 
@@ -54,13 +43,4 @@ public class MulticastPublisherImpl implements MulticastPublisher {
         return byteArrayOutputStream.toByteArray();
     }
 
-    private int receivePackets() throws IOException {
-        int serversDiscovered = 0;
-        DatagramPacket packet = new DatagramPacket(buf, buf.length);
-        while (serversDiscovered != expectedServerCount) {
-            socket.receive(packet);
-            serversDiscovered++;
-        }
-        return serversDiscovered;
-    }
 }

@@ -37,10 +37,8 @@ public class MulticastCacheListenerImpl extends Thread {
                 ByteArrayInputStream in = new ByteArrayInputStream(data);
                 ObjectInputStream ois = new ObjectInputStream(in);
                 Object obj = ois.readObject();
-                System.out.println("Received object: " + obj);
                 if (obj instanceof Cache) {
                     cacheService.updateCache((Cache) obj);
-                    //sendResponse();
                 }
             }
         } catch (IOException | ClassNotFoundException e) {
@@ -48,18 +46,4 @@ public class MulticastCacheListenerImpl extends Thread {
         }
     }
 
-    private void sendResponse() throws IOException {
-        buf = serializeObject("OK");
-        DatagramPacket packet
-                = new DatagramPacket(buf, buf.length, group, 4446);
-        socket.send(packet);
-    }
-
-    private byte[] serializeObject(Object obj) throws IOException {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
-        objectOutputStream.writeObject(obj);
-        objectOutputStream.flush();
-        return byteArrayOutputStream.toByteArray();
-    }
 }

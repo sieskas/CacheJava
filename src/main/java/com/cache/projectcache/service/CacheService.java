@@ -3,7 +3,6 @@ package com.cache.projectcache.service;
 import com.cache.projectcache.domain.exception.NotFoundCacheException;
 import com.cache.projectcache.domain.model.Cache;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 

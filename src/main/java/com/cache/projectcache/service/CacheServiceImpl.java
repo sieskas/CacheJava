@@ -28,6 +28,7 @@ public class CacheServiceImpl implements CacheService {
 
         if (!cache.containsKey(objCache.getKey())
                 || !cache.get(objCache.getKey()).equals(objCache.getValue())) {
+            System.out.println("Received object: " + objCache);
             cache.put(objCache.getKey(), objCache.getValue());
             multicastPublisher.sendPacket(objCache);
         }
